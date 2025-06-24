@@ -4,6 +4,20 @@ seika provides `Result<T, E>` composed of plain object.
 
 Inspired by [Rust's `Result<T, E>`](https://doc.rust-lang.org/std/result/enum.Result.html) type, this library brings robust error handling to TypeScript with both functional and object-oriented approaches.
 
+## Installation
+
+```bash
+npm install seika
+```
+
+```bash
+yarn add seika
+```
+
+```bash
+pnpm add seika
+```
+
 # Example
 
 ## Basic Usage
