@@ -24,4 +24,4 @@ export {
   unwrapOr,
   unwrapOrElse,
 } from "./methods";
-export type { Result } from "./result-type";
+export type { Result, Unwrap, UnwrapErr } from "./result-type";
