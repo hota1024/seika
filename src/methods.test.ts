@@ -16,6 +16,7 @@ import {
 	mapOr,
 	mapOrElse,
 	match,
+	matchNullable,
 	or,
 	orElse,
 	resultErr,
@@ -407,14 +408,115 @@ describe("methods", () => {
 				ok: (value) => value * 2,
 				err: () => 0,
 			});
-			
+
 			const errResult = match(err("error"), {
 				ok: () => 0,
 				err: () => -1,
 			});
-			
+
 			expect(okResult).toBe(84);
 			expect(errResult).toBe(-1);
+		});
+	});
+
+	describe("matchNullable", () => {
+		it("should call ok handler for Ok results", () => {
+			const okHandler = vi.fn((value) => `ok: ${value}`);
+			const errHandler = vi.fn();
+			const noneHandler = vi.fn();
+
+			const result = matchNullable(ok("value"), {
+				ok: okHandler,
+				err: errHandler,
+				none: noneHandler,
+			});
+
+			expect(okHandler).toHaveBeenCalledWith("value");
+			expect(errHandler).not.toHaveBeenCalled();
+			expect(noneHandler).not.toHaveBeenCalled();
+			expect(result).toBe("ok: value");
+		});
+
+		it("should call err handler for Err results", () => {
+			const okHandler = vi.fn();
+			const errHandler = vi.fn((error) => `error: ${error}`);
+			const noneHandler = vi.fn();
+
+			const result = matchNullable(err("error"), {
+				ok: okHandler,
+				err: errHandler,
+				none: noneHandler,
+			});
+
+			expect(okHandler).not.toHaveBeenCalled();
+			expect(errHandler).toHaveBeenCalledWith("error");
+			expect(noneHandler).not.toHaveBeenCalled();
+			expect(result).toBe("error: error");
+		});
+
+		it("should call none handler for null values", () => {
+			const okHandler = vi.fn();
+			const errHandler = vi.fn();
+			const noneHandler = vi.fn(() => "none");
+
+			const result = matchNullable(null, {
+				ok: okHandler,
+				err: errHandler,
+				none: noneHandler,
+			});
+
+			expect(okHandler).not.toHaveBeenCalled();
+			expect(errHandler).not.toHaveBeenCalled();
+			expect(noneHandler).toHaveBeenCalled();
+			expect(result).toBe("none");
+		});
+
+		it("should call none handler for undefined values", () => {
+			const okHandler = vi.fn();
+			const errHandler = vi.fn();
+			const noneHandler = vi.fn(() => "none");
+
+			const result = matchNullable(undefined, {
+				ok: okHandler,
+				err: errHandler,
+				none: noneHandler,
+			});
+
+			expect(okHandler).not.toHaveBeenCalled();
+			expect(errHandler).not.toHaveBeenCalled();
+			expect(noneHandler).toHaveBeenCalled();
+			expect(result).toBe("none");
+		});
+
+		it("should return the handler return value", () => {
+			const okResult = matchNullable(ok(42), {
+				ok: (value) => value * 2,
+				err: () => 0,
+				none: () => -1,
+			});
+
+			const errResult = matchNullable(err("error"), {
+				ok: () => 0,
+				err: () => 1,
+				none: () => -1,
+			});
+
+			const nullResult = matchNullable(null, {
+				ok: () => 0,
+				err: () => 1,
+				none: () => -1,
+			});
+
+			const undefinedResult = matchNullable(undefined, {
+				ok: () => 0,
+				err: () => 1,
+				none: () => -1,
+			});
+
+			expect(okResult).toBe(84);
+			expect(errResult).toBe(1);
+			expect(nullResult).toBe(-1);
+			expect(undefinedResult).toBe(-1);
 		});
 	});
 });

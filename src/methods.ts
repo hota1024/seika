@@ -23,6 +23,34 @@ export function match<T, E, OK, ERR>(
 }
 
 /**
+ * Matches on a Result (including null/undefined), calling the appropriate handler.
+ *
+ * @param result - The Result to match on (may be null or undefined)
+ * @param handlers - Object containing handler functions for Ok, Err, and null cases
+ * @param handlers.ok - Function to call if the result is Ok
+ * @param handlers.err - Function to call if the result is Err
+ * @param handlers.none - Function to call if the result is null or undefined
+ * @returns The return value from the called handler function
+ */
+export function matchNullable<T, E, OK, ERR, NONE>(
+  result: Result<T, E> | null | undefined,
+  {
+    ok,
+    err,
+    none,
+  }: {
+    ok(value: T): OK;
+    err(error: E): ERR;
+    none(): NONE;
+  }
+): OK | ERR | NONE {
+  if (result === null || result === undefined) {
+    return none();
+  }
+  return result.kind === "ok" ? ok(result.inner) : err(result.inner);
+}
+
+/**
  * Returns `true` if the result is `Ok`.
  *
  * @param result - The Result to check
