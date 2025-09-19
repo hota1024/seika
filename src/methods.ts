@@ -9,16 +9,16 @@ import type { Result } from "./result-type";
  * @param handlers.err - Function to call if the result is Err
  * @returns The return value from the called handler function
  */
-export function match<T, E, R>(
+export function match<T, E, OK, ERR>(
   result: Result<T, E>,
   {
     ok,
     err,
   }: {
-    ok(value: T): R;
-    err(error: E): R;
+    ok(value: T): OK;
+    err(error: E): ERR;
   }
-): R {
+): OK | ERR {
   return result.kind === "ok" ? ok(result.inner) : err(result.inner);
 }
 
