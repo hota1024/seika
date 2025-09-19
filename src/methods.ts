@@ -32,7 +32,7 @@ export function match<T, E, OK, ERR>(
  * @param handlers.none - Function to call if the result is null or undefined
  * @returns The return value from the called handler function
  */
-export function matchNullable<T, E, OK, ERR, NONE>(
+export function matchNullable<T, E, OK, ERR, NONE = void>(
   result: Result<T, E> | null | undefined,
   {
     ok,
@@ -41,11 +41,11 @@ export function matchNullable<T, E, OK, ERR, NONE>(
   }: {
     ok(value: T): OK;
     err(error: E): ERR;
-    none(): NONE;
+    none?(): NONE;
   }
 ): OK | ERR | NONE {
   if (result === null || result === undefined) {
-    return none();
+    return none?.() ?? (undefined as NONE);
   }
   return result.kind === "ok" ? ok(result.inner) : err(result.inner);
 }
