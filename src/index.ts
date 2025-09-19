@@ -15,6 +15,7 @@ export {
   mapOr,
   mapOrElse,
   match,
+  matchNullable,
   or,
   orElse,
   resultErr,
