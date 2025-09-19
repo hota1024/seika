@@ -491,6 +491,66 @@ describe("result-class", () => {
 		});
 	});
 
+	describe("match", () => {
+		it("should call ok handler for Ok results", () => {
+			const okHandler = vi.fn((value) => `ok: ${value}`);
+			const errHandler = vi.fn();
+			
+			const result = Res.ok("value").match({
+				ok: okHandler,
+				err: errHandler,
+			});
+			
+			expect(okHandler).toHaveBeenCalledWith("value");
+			expect(errHandler).not.toHaveBeenCalled();
+			expect(result).toBe("ok: value");
+		});
+
+		it("should call err handler for Err results", () => {
+			const okHandler = vi.fn();
+			const errHandler = vi.fn((error) => `error: ${error}`);
+			
+			const result = Res.err("error").match({
+				ok: okHandler,
+				err: errHandler,
+			});
+			
+			expect(okHandler).not.toHaveBeenCalled();
+			expect(errHandler).toHaveBeenCalledWith("error");
+			expect(result).toBe("error: error");
+		});
+
+		it("should return the handler return value", () => {
+			const okResult = Res.ok(42).match({
+				ok: (value) => value * 2,
+				err: () => 0,
+			});
+			
+			const errResult = Res.err("error").match({
+				ok: () => 0,
+				err: () => -1,
+			});
+			
+			expect(okResult).toBe(84);
+			expect(errResult).toBe(-1);
+		});
+
+		it("should work with different return types", () => {
+			const stringResult = Res.ok(5).match({
+				ok: (value) => `Number: ${value}`,
+				err: (error) => `Error: ${error}`,
+			});
+
+			const booleanResult = Res.err("error").match({
+				ok: () => true,
+				err: () => false,
+			});
+
+			expect(stringResult).toBe("Number: 5");
+			expect(booleanResult).toBe(false);
+		});
+	});
+
 	describe("Method chaining", () => {
 		it("should support fluent API", () => {
 			const result = Res.ok(5)

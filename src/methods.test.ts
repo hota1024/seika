@@ -15,6 +15,7 @@ import {
 	mapErr,
 	mapOr,
 	mapOrElse,
+	match,
 	or,
 	orElse,
 	resultErr,
@@ -369,6 +370,51 @@ describe("methods", () => {
 		it("should propagate function errors", () => {
 			const result = orElse(err("error"), () => err("new error"));
 			expect(result).toEqual(err("new error"));
+		});
+	});
+
+	describe("match", () => {
+		it("should call ok handler for Ok results", () => {
+			const okHandler = vi.fn((value) => `ok: ${value}`);
+			const errHandler = vi.fn();
+			
+			const result = match(ok("value"), {
+				ok: okHandler,
+				err: errHandler,
+			});
+			
+			expect(okHandler).toHaveBeenCalledWith("value");
+			expect(errHandler).not.toHaveBeenCalled();
+			expect(result).toBe("ok: value");
+		});
+
+		it("should call err handler for Err results", () => {
+			const okHandler = vi.fn();
+			const errHandler = vi.fn((error) => `error: ${error}`);
+			
+			const result = match(err("error"), {
+				ok: okHandler,
+				err: errHandler,
+			});
+			
+			expect(okHandler).not.toHaveBeenCalled();
+			expect(errHandler).toHaveBeenCalledWith("error");
+			expect(result).toBe("error: error");
+		});
+
+		it("should return the handler return value", () => {
+			const okResult = match(ok(42), {
+				ok: (value) => value * 2,
+				err: () => 0,
+			});
+			
+			const errResult = match(err("error"), {
+				ok: () => 0,
+				err: () => -1,
+			});
+			
+			expect(okResult).toBe(84);
+			expect(errResult).toBe(-1);
 		});
 	});
 });

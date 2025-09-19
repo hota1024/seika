@@ -252,6 +252,24 @@ export abstract class Res<T, E> {
 	}
 
 	/**
+	 * Matches on a Result, calling the appropriate handler based on whether it's Ok or Err.
+	 *
+	 * @param handlers - Object containing handler functions for Ok and Err cases
+	 * @param handlers.ok - Function to call if the result is Ok
+	 * @param handlers.err - Function to call if the result is Err
+	 * @returns The return value from the called handler function
+	 */
+	match<R>({
+		ok,
+		err,
+	}: {
+		ok(value: T): R;
+		err(error: E): R;
+	}): R {
+		return this.isOk() ? ok(this.value) : err(this.error);
+	}
+
+	/**
 	 * Creates a `Result` containing an `Ok` value.
 	 *
 	 * @param value - The value to wrap in Ok

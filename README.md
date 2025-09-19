@@ -551,6 +551,28 @@ orElse(err("error"), (e) => ok(`recovered: ${e}`)); // ok("recovered: error")
 orElse(err("error"), (e) => err("new error")); // err("new error")
 ```
 
+### `match<T, E, R>(result: Result<T, E>, handlers: { ok: (value: T) => R; err: (error: E) => R }): R`
+
+Matches on a Result, calling the appropriate handler based on whether it's Ok or Err.
+
+```ts
+const result1 = match(ok("success"), {
+  ok: (value) => `Value: ${value}`,
+  err: (error) => `Error: ${error}`,
+}); // "Value: success"
+
+const result2 = match(err("failed"), {
+  ok: (value) => `Value: ${value}`,
+  err: (error) => `Error: ${error}`,
+}); // "Error: failed"
+
+// Different return types
+const isSuccess = match(ok(42), {
+  ok: () => true,
+  err: () => false,
+}); // true
+```
+
 # API Reference
 
 ## Two API Styles
@@ -560,10 +582,16 @@ seika provides two equivalent APIs:
 ### Functional API
 
 ```ts
-import { ok, err, map, unwrap } from "seika";
+import { ok, err, map, unwrap, match } from "seika";
 
 const result = map(ok(5), (x) => x * 2);
 const value = unwrap(result); // 10
+
+// Pattern matching
+const message = match(result, {
+  ok: (value) => `Success: ${value}`,
+  err: (error) => `Error: ${error}`,
+}); // "Success: 10"
 ```
 
 ### Class-based API
@@ -573,6 +601,12 @@ import { Res } from "seika/class";
 
 const result = Res.ok(5).map((x) => x * 2);
 const value = result.unwrap(); // 10
+
+// Pattern matching
+const message = result.match({
+  ok: (value) => `Success: ${value}`,
+  err: (error) => `Error: ${error}`,
+}); // "Success: 10"
 ```
 
 ## Conversion Functions
@@ -623,6 +657,7 @@ Res.from<T, E>(result: Result<T, E>): Res<T, E>  // Convert from functional API
 .andThen<U>(fn: (value: T) => Res<U, E>): Res<U, E>
 .or<F>(other: Res<T, F>): Res<T, F>
 .orElse<F>(fn: (error: E) => Res<T, F>): Res<T, F>
+.match<R>(handlers: { ok: (value: T) => R; err: (error: E) => R }): R
 
 // Additional class-specific methods
 .toString(): string  // "Ok(value)" or "Err(error)"

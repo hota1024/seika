@@ -1,15 +1,37 @@
 import type { Result } from "./result-type";
 
 /**
+ * Matches on a Result, calling the appropriate handler based on whether it's Ok or Err.
+ *
+ * @param result - The Result to match on
+ * @param handlers - Object containing handler functions for Ok and Err cases
+ * @param handlers.ok - Function to call if the result is Ok
+ * @param handlers.err - Function to call if the result is Err
+ * @returns The return value from the called handler function
+ */
+export function match<T, E, R>(
+  result: Result<T, E>,
+  {
+    ok,
+    err,
+  }: {
+    ok(value: T): R;
+    err(error: E): R;
+  }
+): R {
+  return result.kind === "ok" ? ok(result.inner) : err(result.inner);
+}
+
+/**
  * Returns `true` if the result is `Ok`.
  *
  * @param result - The Result to check
  * @returns `true` if the result is `Ok`, `false` otherwise
  */
 export function isOk<T, E>(
-	result: Result<T, E>,
+  result: Result<T, E>
 ): result is { kind: "ok"; inner: T } {
-	return result.kind === "ok";
+  return result.kind === "ok";
 }
 
 /**
@@ -20,10 +42,10 @@ export function isOk<T, E>(
  * @returns `true` if the result is `Ok` and the predicate returns `true`
  */
 export function isOkAnd<T, E>(
-	result: Result<T, E>,
-	predicate: (value: T) => boolean,
+  result: Result<T, E>,
+  predicate: (value: T) => boolean
 ): boolean {
-	return result.kind === "ok" && predicate(result.inner);
+  return result.kind === "ok" && predicate(result.inner);
 }
 
 /**
@@ -33,9 +55,9 @@ export function isOkAnd<T, E>(
  * @returns `true` if the result is `Err`, `false` otherwise
  */
 export function isErr<T, E>(
-	result: Result<T, E>,
+  result: Result<T, E>
 ): result is { kind: "err"; inner: E } {
-	return result.kind === "err";
+  return result.kind === "err";
 }
 
 /**
@@ -46,10 +68,10 @@ export function isErr<T, E>(
  * @returns `true` if the result is `Err` and the predicate returns `true`
  */
 export function isErrAnd<T, E>(
-	result: Result<T, E>,
-	predicate: (error: E) => boolean,
+  result: Result<T, E>,
+  predicate: (error: E) => boolean
 ): boolean {
-	return result.kind === "err" && predicate(result.inner);
+  return result.kind === "err" && predicate(result.inner);
 }
 
 /**
@@ -60,7 +82,7 @@ export function isErrAnd<T, E>(
  * @returns The Ok value or `undefined`
  */
 export function resultOk<T, E>(result: Result<T, E>): T | undefined {
-	return result.kind === "ok" ? result.inner : undefined;
+  return result.kind === "ok" ? result.inner : undefined;
 }
 
 /**
@@ -71,7 +93,7 @@ export function resultOk<T, E>(result: Result<T, E>): T | undefined {
  * @returns The Err value or `undefined`
  */
 export function resultErr<T, E>(result: Result<T, E>): E | undefined {
-	return result.kind === "err" ? result.inner : undefined;
+  return result.kind === "err" ? result.inner : undefined;
 }
 
 /**
@@ -85,12 +107,12 @@ export function resultErr<T, E>(result: Result<T, E>): E | undefined {
  * @returns A new Result with the transformed Ok value or the original Err
  */
 export function map<T, E, U>(
-	result: Result<T, E>,
-	fn: (value: T) => U,
+  result: Result<T, E>,
+  fn: (value: T) => U
 ): Result<U, E> {
-	return result.kind === "ok"
-		? { kind: "ok", inner: fn(result.inner) }
-		: result;
+  return result.kind === "ok"
+    ? { kind: "ok", inner: fn(result.inner) }
+    : result;
 }
 
 /**
@@ -105,11 +127,11 @@ export function map<T, E, U>(
  * @returns The result of applying fn to the Ok value or the default value
  */
 export function mapOr<T, E, U>(
-	result: Result<T, E>,
-	defaultValue: U,
-	fn: (value: T) => U,
+  result: Result<T, E>,
+  defaultValue: U,
+  fn: (value: T) => U
 ): U {
-	return result.kind === "ok" ? fn(result.inner) : defaultValue;
+  return result.kind === "ok" ? fn(result.inner) : defaultValue;
 }
 
 /**
@@ -124,11 +146,11 @@ export function mapOr<T, E, U>(
  * @returns The result of applying the appropriate function
  */
 export function mapOrElse<T, E, U>(
-	result: Result<T, E>,
-	fallback: (error: E) => U,
-	fn: (value: T) => U,
+  result: Result<T, E>,
+  fallback: (error: E) => U,
+  fn: (value: T) => U
 ): U {
-	return result.kind === "ok" ? fn(result.inner) : fallback(result.inner);
+  return result.kind === "ok" ? fn(result.inner) : fallback(result.inner);
 }
 
 /**
@@ -142,12 +164,12 @@ export function mapOrElse<T, E, U>(
  * @returns A new Result with the transformed Err value or the original Ok
  */
 export function mapErr<T, E, F>(
-	result: Result<T, E>,
-	fn: (error: E) => F,
+  result: Result<T, E>,
+  fn: (error: E) => F
 ): Result<T, F> {
-	return result.kind === "err"
-		? { kind: "err", inner: fn(result.inner) }
-		: result;
+  return result.kind === "err"
+    ? { kind: "err", inner: fn(result.inner) }
+    : result;
 }
 
 /**
@@ -158,13 +180,13 @@ export function mapErr<T, E, F>(
  * @returns The original result unchanged
  */
 export function inspect<T, E>(
-	result: Result<T, E>,
-	fn: (value: T) => void,
+  result: Result<T, E>,
+  fn: (value: T) => void
 ): Result<T, E> {
-	if (result.kind === "ok") {
-		fn(result.inner);
-	}
-	return result;
+  if (result.kind === "ok") {
+    fn(result.inner);
+  }
+  return result;
 }
 
 /**
@@ -175,13 +197,13 @@ export function inspect<T, E>(
  * @returns The original result unchanged
  */
 export function inspectErr<T, E>(
-	result: Result<T, E>,
-	fn: (error: E) => void,
+  result: Result<T, E>,
+  fn: (error: E) => void
 ): Result<T, E> {
-	if (result.kind === "err") {
-		fn(result.inner);
-	}
-	return result;
+  if (result.kind === "err") {
+    fn(result.inner);
+  }
+  return result;
 }
 
 /**
@@ -193,10 +215,10 @@ export function inspectErr<T, E>(
  * @throws Error with the provided message if the result is Err
  */
 export function expect<T, E>(result: Result<T, E>, message: string): T {
-	if (result.kind === "ok") {
-		return result.inner;
-	}
-	throw new Error(message);
+  if (result.kind === "ok") {
+    return result.inner;
+  }
+  throw new Error(message);
 }
 
 /**
@@ -211,10 +233,10 @@ export function expect<T, E>(result: Result<T, E>, message: string): T {
  * @throws Error if the result is Err
  */
 export function unwrap<T, E>(result: Result<T, E>): T {
-	if (result.kind === "ok") {
-		return result.inner;
-	}
-	throw new Error("Called unwrap on an Err value");
+  if (result.kind === "ok") {
+    return result.inner;
+  }
+  throw new Error("Called unwrap on an Err value");
 }
 
 /**
@@ -228,7 +250,7 @@ export function unwrap<T, E>(result: Result<T, E>): T {
  * @returns The Ok value or the default value
  */
 export function unwrapOr<T, E>(result: Result<T, E>, defaultValue: T): T {
-	return result.kind === "ok" ? result.inner : defaultValue;
+  return result.kind === "ok" ? result.inner : defaultValue;
 }
 
 /**
@@ -239,10 +261,10 @@ export function unwrapOr<T, E>(result: Result<T, E>, defaultValue: T): T {
  * @returns The Ok value or the result of calling fn with the Err value
  */
 export function unwrapOrElse<T, E>(
-	result: Result<T, E>,
-	fn: (error: E) => T,
+  result: Result<T, E>,
+  fn: (error: E) => T
 ): T {
-	return result.kind === "ok" ? result.inner : fn(result.inner);
+  return result.kind === "ok" ? result.inner : fn(result.inner);
 }
 
 /**
@@ -254,10 +276,10 @@ export function unwrapOrElse<T, E>(
  * @throws Error with the provided message if the result is Ok
  */
 export function expectErr<T, E>(result: Result<T, E>, message: string): E {
-	if (result.kind === "err") {
-		return result.inner;
-	}
-	throw new Error(message);
+  if (result.kind === "err") {
+    return result.inner;
+  }
+  throw new Error(message);
 }
 
 /**
@@ -268,10 +290,10 @@ export function expectErr<T, E>(result: Result<T, E>, message: string): E {
  * @throws Error if the result is Ok
  */
 export function unwrapErr<T, E>(result: Result<T, E>): E {
-	if (result.kind === "err") {
-		return result.inner;
-	}
-	throw new Error("Called unwrapErr on an Ok value");
+  if (result.kind === "err") {
+    return result.inner;
+  }
+  throw new Error("Called unwrapErr on an Ok value");
 }
 
 /**
@@ -282,10 +304,10 @@ export function unwrapErr<T, E>(result: Result<T, E>): E {
  * @returns The second result if the first is Ok, otherwise the first result
  */
 export function and<T, E, U>(
-	result: Result<T, E>,
-	other: Result<U, E>,
+  result: Result<T, E>,
+  other: Result<U, E>
 ): Result<U, E> {
-	return result.kind === "ok" ? other : result;
+  return result.kind === "ok" ? other : result;
 }
 
 /**
@@ -298,10 +320,10 @@ export function and<T, E, U>(
  * @returns The result of calling fn or the original Err
  */
 export function andThen<T, E, U>(
-	result: Result<T, E>,
-	fn: (value: T) => Result<U, E>,
+  result: Result<T, E>,
+  fn: (value: T) => Result<U, E>
 ): Result<U, E> {
-	return result.kind === "ok" ? fn(result.inner) : result;
+  return result.kind === "ok" ? fn(result.inner) : result;
 }
 
 /**
@@ -312,10 +334,10 @@ export function andThen<T, E, U>(
  * @returns The first result if it's Ok, otherwise the second result
  */
 export function or<T, E, F>(
-	result: Result<T, E>,
-	other: Result<T, F>,
+  result: Result<T, E>,
+  other: Result<T, F>
 ): Result<T, F> {
-	return result.kind === "ok" ? result : other;
+  return result.kind === "ok" ? result : other;
 }
 
 /**
@@ -328,8 +350,8 @@ export function or<T, E, F>(
  * @returns The original Ok result or the result of calling fn
  */
 export function orElse<T, E, F>(
-	result: Result<T, E>,
-	fn: (error: E) => Result<T, F>,
+  result: Result<T, E>,
+  fn: (error: E) => Result<T, F>
 ): Result<T, F> {
-	return result.kind === "ok" ? result : fn(result.inner);
+  return result.kind === "ok" ? result : fn(result.inner);
 }
