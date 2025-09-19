@@ -1,6 +1,6 @@
 {
   "name": "seika",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Rust-inspired Result<T, E> type for TypeScript with both functional and class-based APIs",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
