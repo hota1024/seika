@@ -29,8 +29,12 @@ export function match<T, E, OK, ERR>(
  * @returns `true` if the result is `Ok`, `false` otherwise
  */
 export function isOk<T, E>(
-  result: Result<T, E>
+  result: Result<T, E> | null | undefined
 ): result is { kind: "ok"; inner: T } {
+  if (result === null || result === undefined) {
+    return false;
+  }
+
   return result.kind === "ok";
 }
 
@@ -55,8 +59,12 @@ export function isOkAnd<T, E>(
  * @returns `true` if the result is `Err`, `false` otherwise
  */
 export function isErr<T, E>(
-  result: Result<T, E>
+  result: Result<T, E> | null | undefined
 ): result is { kind: "err"; inner: E } {
+  if (result === null || result === undefined) {
+    return false;
+  }
+
   return result.kind === "err";
 }
 
